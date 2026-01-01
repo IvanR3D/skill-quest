@@ -3,6 +3,8 @@ const app = {
   currentPage: "dashboard",
   skillTrees: [],
   currentTree: null,
+  sidebarCollapsed: false,
+  defaultRandomColors: true,
   profile: {
     name: "User Name",
     bio: "Learning enthusiast",
@@ -54,6 +56,12 @@ const elements = {
   sidebar: document.getElementById("sidebar"),
   menuToggle: document.getElementById("menuToggle"),
   navLinks: document.querySelectorAll(".nav-link"),
+  collapseToggle: document.getElementById("collapseToggle"),
+  headerProfileName: document.getElementById("headerProfileName"),
+  headerProfileTagline: document.getElementById("headerProfileTagline"),
+  headerLevel: document.getElementById("headerLevel"),
+  headerXPText: document.getElementById("headerXPText"),
+  headerXPBar: document.getElementById("headerXPBar"),
   pages: document.querySelectorAll(".page"),
   addTreeBtn: document.getElementById("addTreeBtn"),
   addTreeModal: document.getElementById("addTreeModal"),
@@ -74,7 +82,6 @@ const elements = {
   resetBtn: document.getElementById("resetBtn"),
   exportBtn: document.getElementById("exportBtn"),
   importData: document.getElementById("importData"),
-  xpBar: document.getElementById("xpBar"),
   levelBadge: document.getElementById("levelBadge"),
   achievementPopup: document.getElementById("achievementPopup"),
   achievementIcon: document.getElementById("achievementIcon"),
@@ -90,6 +97,8 @@ function init() {
   renderSkillTrees();
   updateProfile();
   updateLevel();
+  updateHeaderProfile();
+  updateRandomColorsSetting();
 }
 
 // ===== EVENT LISTENERS =====
@@ -106,6 +115,16 @@ function setupEventListeners() {
       const page = link.getAttribute("data-page");
       navigateToPage(page);
     });
+  });
+
+  // Sidebar collapse toggle
+  elements.collapseToggle.addEventListener("click", toggleSidebar);
+  
+  // Random colors checkbox
+  elements.randomColorCheckbox.addEventListener("change", function(e) {
+    app.defaultRandomColors = e.target.checked;
+    elements.colorPicker.disabled = e.target.checked;
+    saveToLocalStorage();
   });
 
   // Add Skill Tree Modal
@@ -172,6 +191,13 @@ function setupEventListeners() {
       elements.editProfileModal.classList.remove("active");
     }
   });
+
+  // Default random colors setting
+  document.getElementById("defaultRandomColors").addEventListener("change", (e) => {
+    app.defaultRandomColors = e.target.value === "true";
+    saveToLocalStorage();
+    updateRandomColorsSetting();
+  });
 }
 
 // ===== NAVIGATION =====
@@ -195,11 +221,10 @@ function navigateToPage(page) {
   if (page === "library") renderSkillTrees();
 }
 
-// ===== XP & LEVEL SYSTEM =====
-function updateLevel() {
-  const xpPercent = (app.profile.xp / app.profile.xpToNextLevel) * 100;
-  elements.xpBar.style.width = `${Math.min(xpPercent, 100)}%`;
-  elements.levelBadge.textContent = `LVL ${app.profile.level}`;
+function toggleSidebar() {
+  app.sidebarCollapsed = !app.sidebarCollapsed;
+  elements.sidebar.classList.toggle("collapsed");
+  saveToLocalStorage();
 }
 
 function gainXP(amount) {
@@ -305,6 +330,29 @@ function spawnConfetti() {
 
       setTimeout(() => confetti.remove(), 3000);
     }, i * 50);
+  }
+}
+
+function updateHeaderProfile() {
+  elements.headerProfileName.textContent = app.profile.name;
+  elements.headerProfileTagline.textContent = app.profile.bio;
+  updateLevel(); // This will also update header XP
+}
+
+// Update updateLevel function
+function updateLevel() {
+  const xpPercent = (app.profile.xp / app.profile.xpToNextLevel) * 100;
+  
+  // Update header XP
+  elements.headerLevel.textContent = `LVL ${app.profile.level}`;
+  elements.headerXPText.textContent = `${app.profile.xp}/${app.profile.xpToNextLevel} XP`;
+  elements.headerXPBar.style.width = `${Math.min(xpPercent, 100)}%`;
+}
+
+function updateRandomColorsSetting() {
+  if (app.defaultRandomColors) {
+    elements.randomColorCheckbox.checked = true;
+    elements.colorPicker.disabled = true;
   }
 }
 
@@ -540,7 +588,7 @@ function renderSkillTrees() {
           : "common";
 
       return `
-        <div class="skill-tree-card" data-id="${tree.id}">
+        <div class="skill-tree-card" data-id="${tree.id}" data-category="${tree.category}">
           <div class="skill-tree-info">
             <h3 class="skill-tree-title">${tree.name}</h3>
             <span class="skill-tree-category">${tree.category}</span>
@@ -606,6 +654,10 @@ function viewSkillTree(treeId) {
   navigateToPage("viewer");
 
   elements.colorPicker.value = app.profile.defaultColor;
+  // Set random colors checkbox based on setting
+  elements.randomColorCheckbox.checked = app.defaultRandomColors;
+  elements.colorPicker.disabled = app.defaultRandomColors;
+  
   renderSkillTree(tree);
 }
 
@@ -650,7 +702,8 @@ function toggleSkillCompletion(skill, element, event) {
 
   if (skill.completed) {
     let color;
-    if (elements.randomColorCheckbox.checked) {
+    // Always use random colors if setting is enabled
+    if (app.defaultRandomColors || elements.randomColorCheckbox.checked) {
       color = getRandomColor();
       skill.color = color;
     } else {
@@ -669,11 +722,6 @@ function toggleSkillCompletion(skill, element, event) {
       `Completed skill: ${skill.name} in ${app.currentTree.name} +10 XP`
     );
     gainXP(10);
-
-    if (elements.soundEffectsCheckbox.checked) {
-      //todo: add sound effect
-      //showToast(`🔊 Sound Effect: Skill Completed!`);
-    }
 
     // Spawn particle effect
     const rect = element.getBoundingClientRect();
@@ -915,7 +963,10 @@ function updateProfile() {
   document.getElementById("profileBio").textContent = app.profile.bio;
   document.getElementById("defaultColor").value = app.profile.defaultColor;
   document.getElementById("notifications").value = app.profile.notifications;
+  document.getElementById("defaultRandomColors").value = app.defaultRandomColors;
 
+  updateHeaderProfile();
+  
   // Update profile stats
   document.getElementById("profileTotalTrees").textContent =
     app.stats.totalTrees;
@@ -947,6 +998,8 @@ function saveToLocalStorage() {
     profile: app.profile,
     activity: app.activity,
     achievements: app.achievements,
+    sidebarCollapsed: app.sidebarCollapsed,
+    defaultRandomColors: app.defaultRandomColors,
   };
   localStorage.setItem("skillTreeData", JSON.stringify(data));
 }
@@ -961,6 +1014,13 @@ function loadFromLocalStorage() {
     app.profile = { ...app.profile, ...parsedData.profile };
     app.activity = parsedData.activity || [];
     app.achievements = parsedData.achievements || app.achievements;
+    app.sidebarCollapsed = parsedData.sidebarCollapsed || false;
+    app.defaultRandomColors = parsedData.defaultRandomColors !== undefined ? parsedData.defaultRandomColors : true;
+    
+    // Apply sidebar collapsed state if needed
+    if (app.sidebarCollapsed) {
+      elements.sidebar.classList.add("collapsed");
+    }
   } catch (e) {
     console.error("Error loading data:", e);
   }

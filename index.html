@@ -4,15 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skill Quest - Level Up Your Life</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- XP BAR -->
-  <div class="xp-bar-container">
-    <div class="xp-bar" id="xpBar" style="width: 0%"></div>
-  </div>
-  <div class="level-badge" id="levelBadge">LVL 1</div>
-
   <!-- Achievement Popup -->
   <div class="achievement-popup" id="achievementPopup">
     <div class="achievement-header">
@@ -34,6 +29,11 @@
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
+      <button class="collapse-toggle" id="collapseToggle">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+        </svg>
+      </button>
       <div class="sidebar-header">
         <h1>⚔️ Skill Quest</h1>
       </div>
@@ -74,6 +74,28 @@
         </ul>
       </nav>
     </aside>
+
+    <div class="header-profile-overview">
+      <div class="profile-mini">
+        <div class="profile-mini-avatar">
+          <img src="https://picsum.photos/seed/profile/150/150.jpg" alt="Profile Avatar">
+        </div>
+        <div class="profile-mini-info">
+          <div class="profile-mini-name" id="headerProfileName">User Name</div>
+          <div class="profile-mini-tagline" id="headerProfileTagline">Learning enthusiast</div>
+        </div>
+      </div>
+      
+      <div class="header-xp-container">
+        <div class="header-xp-info">
+          <span class="header-xp-level" id="headerLevel">LVL 1</span>
+          <span class="header-xp-text" id="headerXPText">0/100 XP</span>
+        </div>
+        <div class="header-xp-bar-container">
+          <div class="header-xp-bar" id="headerXPBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Main Content Area -->
     <main class="main-content">
@@ -272,6 +294,13 @@
         <div class="profile-section">
           <h3>⚙️ Settings</h3>
           <div class="settings-form">
+            <div class="form-group">
+              <label class="form-label" for="defaultRandomColors">Default to Random Colors</label>
+              <select id="defaultRandomColors" class="form-select">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+              </select>
+            </div>
             <div class="form-group">
               <label class="form-label" for="defaultColor">Default Completion Color</label>
               <input type="color" id="defaultColor" class="form-input" value="#6366F1">
