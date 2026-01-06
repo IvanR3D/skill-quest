@@ -358,6 +358,18 @@
           <input type="file" id="treeFile" class="form-input" accept=".svg" required>
         </div>
         <div class="form-group">
+          <label class="form-label">Or search GitHub repository:</label>
+          <div class="search-github-container">
+            <div class="search-input-group">
+              <input type="text" id="githubSearch" placeholder="Search skill trees in GitHub..." class="form-input">
+              <button type="button" class="btn btn-secondary" id="searchGithubBtn">Search</button>
+            </div>
+            <div id="githubResults" class="github-results-container" style="display: none;">
+              <!-- Results will be populated here -->
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
           <button type="submit" class="btn btn-primary">Add Skill Tree</button>
         </div>
       </form>

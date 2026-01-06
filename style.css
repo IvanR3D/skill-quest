@@ -933,6 +933,78 @@ body {
     font-family: inherit;
 }
 
+/* GitHub Search Styles */
+.search-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .search-input-group input {
+    flex: 1;
+  }
+  
+  .github-results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 0.5rem;
+  }
+  
+  .github-result-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .github-result-item:hover {
+    background-color: var(--surface-light);
+  }
+  
+  .github-result-item:last-child {
+    border-bottom: none;
+  }
+  
+  .github-result-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .github-result-path {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .github-result-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .tab-container {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .tab-button.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
 /* ===== MODALS ===== */
 .modal {
     display: none;

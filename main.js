@@ -51,6 +51,140 @@ const app = {
   ],
 };
 
+const githubConfig = {
+  owner: "sjpiper145",
+  repo: "MakerSkillTree",
+  apiBase: "https://api.github.com"
+};
+// GitHub search button
+document.getElementById("searchGithubBtn").addEventListener("click", searchGithubTrees);
+// GitHub search input (enter key)
+document.getElementById("githubSearch").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") searchGithubTrees();
+});
+async function searchGithubTrees() {
+  const searchTerm = document.getElementById("githubSearch").value.trim();
+  if (!searchTerm) return;
+
+  try {
+    showToast("Searching GitHub...");
+    
+    // Search the repository contents
+    const url = `${githubConfig.apiBase}/repos/${githubConfig.owner}/${githubConfig.repo}/contents/`;
+    const response = await fetch(url);
+    const items = await response.json();
+
+    // Filter for skill trees
+    const skillTrees = items
+      .filter(item => item.type === "dir" && item.name.toLowerCase().includes("skill tree"))
+      .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    displayGithubResults(skillTrees);
+  } catch (error) {
+    console.error("GitHub search error:", error);
+    showToast("Error searching GitHub repository", "error");
+  }
+}
+
+async function displayGithubResults(folders) {
+  const resultsContainer = document.getElementById("githubResults");
+  
+  if (folders.length === 0) {
+    resultsContainer.innerHTML = '<p style="padding: 1rem; text-align: center;">No skill trees found.</p>';
+    resultsContainer.style.display = 'block';
+    return;
+  }
+
+  const resultsHTML = await Promise.all(folders.map(async (folder) => {
+    // Get SVG files from this folder
+    const folderUrl = `${githubConfig.apiBase}/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${folder.path}`;
+    const folderResponse = await fetch(folderUrl);
+    const folderItems = await folderResponse.json();
+    
+    const svgFiles = folderItems.filter(item => 
+      item.type === "file" && item.name.toLowerCase().endsWith(".svg")
+    );
+
+    return svgFiles.map(svg => `
+      <div class="github-result-item" data-url="${svg.download_url}" data-name="${folder.name} - ${svg.name}">
+        <div class="github-result-name">${folder.name}</div>
+        <div class="github-result-path">${svg.name}</div>
+        <div class="github-result-actions">
+          <button class="btn btn-primary btn-sm use-svg-btn">Use This Tree</button>
+          <a href="${svg.html_url}" target="_blank" class="btn btn-secondary btn-sm">Preview</a>
+        </div>
+      </div>
+    `).join('');
+  }));
+
+  resultsContainer.innerHTML = resultsHTML.join('');
+  resultsContainer.style.display = 'block';
+
+  // Add event listeners to "Use This Tree" buttons
+  document.querySelectorAll('.use-svg-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const resultItem = e.target.closest('.github-result-item');
+      const svgUrl = resultItem.getAttribute('data-url');
+      const treeName = resultItem.getAttribute('data-name');
+      
+      try {
+        // Fetch the SVG content
+        const response = await fetch(svgUrl);
+        const svgContent = await response.text();
+        
+        // Auto-fill the form
+        document.getElementById("treeName").value = treeName;
+        document.getElementById("treeDescription").value = `Imported from GitHub: ${githubConfig.owner}/${githubConfig.repo}`;
+        
+        // Create a mock file object for the existing addSkillTree function
+        const fakeFile = new File([svgContent], `${treeName}.svg`, { type: "image/svg+xml" });
+        
+        // You'll need to modify the addSkillTree function to accept direct SVG content
+        // or create a hidden file input and populate it
+        await addSkillTreeFromSVG(svgContent, treeName, "other");
+        
+        showToast("Skill tree imported from GitHub!");
+        document.getElementById("githubResults").style.display = 'none';
+        
+      } catch (error) {
+        console.error("Error importing SVG:", error);
+        showToast("Error importing SVG", "error");
+      }
+    });
+  });
+}
+
+// New function to handle GitHub imports
+async function addSkillTreeFromSVG(svgContent, name, category = "other") {
+  const skills = extractSkillsFromSVG(svgContent);
+  
+  const newTree = {
+    id: Date.now().toString(),
+    name,
+    category,
+    description: `Imported from GitHub: ${githubConfig.owner}/${githubConfig.repo}`,
+    svg: svgContent,
+    skills,
+    completed: false,
+    score: 0,
+    createdAt: new Date().toISOString(),
+  };
+
+  app.skillTrees.push(newTree);
+  saveToLocalStorage();
+
+  addActivity(`Added skill tree from GitHub: ${name}`);
+  
+  // Reset form and close modal
+  elements.addTreeForm.reset();
+  elements.addTreeModal.classList.remove("active");
+
+  // Update UI
+  renderSkillTrees();
+  showToast("Skill tree imported successfully!");
+}
+
 // ===== DOM ELEMENTS =====
 const elements = {
   sidebar: document.getElementById("sidebar"),
