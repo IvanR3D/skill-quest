@@ -1,6 +1,6 @@
 # 🌳 Skill Quest - Gamified Skill Tree Progress Tracker
 
-[![Skill Quest Demo](https://img.shields.io/badge/Demo-Live-blue)](https://ivanr3d.com/demo/skilltree.html) [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)](CONTRIBUTING.md)
+[![Skill Quest Demo](https://img.shields.io/badge/Demo-Live-blue)](https://ivanr3d.com/demo/skillquest.html) [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)](CONTRIBUTING.md)
 
 ## Table of Contents
   - [📖 About Skill Quest](#-about-skill-quest)
@@ -23,6 +23,8 @@
 - **Track progress** with XP, levels, and achievements
 - **Stay motivated** with streaks, badges, and activity tracking
 - **Manage** multiple skill trees across various categories
+
+Try the project [here](https://ivanr3d.com/demo/skillquest.html).
 
 ![Skill Quest Dashboard](dashboard.png)
 
